@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ecuación de Continuidad</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 50%, #7e8ba3 100%);
+            overflow: hidden;
+        }
+
+        .presentation-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+        }
+
+        .nav-menu {
+            background: white;
+            border-radius: 15px;
+            padding: 15px 30px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+        }
+
+        .nav-dots {
+            display: flex;
+            gap: 10px;
+        }
+
+        .dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #ccc;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .dot.active {
+            background: #2a5298;
+            width: 30px;
+            border-radius: 6px;
+        }
+
+        .slide-counter {
+            color: #2a5298;
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+
+        .slide-container {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .slide {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: white;
+            border-radius: 20px;
+            padding: 50px;
+            box-shadow: 0 15px 50px rgba(0,0,0,0.3);
+            opacity: 0;
+            transform: translateX(100%);
+            transition: all 0.5s ease-in-out;
+            overflow-y: auto;
+        }
+
+        .slide.active {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .slide.prev {
+            transform: translateX(-100%);
+        }
+
+        h1 {
+            color: #1e3c72;
+            font-size: 2.8em;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        h2 {
+            color: #2a5298;
+            font-size: 2.8em;
+            margin-bottom: 25px;
+            border-bottom: 4px solid #4a90e2;
+            padding-bottom: 10px;
+        }
+
+        h3 {
+            color: #1e3c72;
+            font-size: 2.3em;
+            margin: 20px 0 10px 0;
+        }
+
+        p {
+            color: #000;
+            line-height: 1.7;
+            font-size: 2.2em;
+            margin-bottom: 15px;
+        }
+
+        .formula {
+            background: linear-gradient(135deg, #4a90e2 0%, #1e3c72 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 12px;
+            font-size: 2em;
+            text-align: center;
+            margin: 20px 0;
+            font-weight: bold;
+            box-shadow: 0 8px 25px rgba(30, 60, 114, 0.4);
+        }
+
+        .image-container {
+            width: 100%;
+            height: 200px;
+            background: linear-gradient(135deg, #e3f2fd, #90caf9);
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 20px 0;
+            font-size: 4em;
+            border: 3px solid #4a90e2;
+        }
+
+        .box {
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+            padding: 20px;
+            border-radius: 12px;
+            margin: 15px 0;
+            border-left: 5px solid #2a5298;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .card {
+            background: linear-gradient(135deg, #bbdefb 0%, #90caf9 100%);
+            padding: 20px;
+            border-radius: 12px;
+            border: 2px solid #64b5f6;
+            text-align: center;
+        }
+
+        .card h3 {
+            font-size: 2em;
+        }
+
+        .card p {
+            font-size: 1.8em;
+        }
+
+        .icon {
+            font-size: 3em;
+            margin-bottom: 10px;
+        }
+
+        .link-button {
+            display: inline-block;
+            background: linear-gradient(135deg, #4a90e2, #2a5298);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 20px;
+            text-decoration: none;
+            margin: 8px 5px;
+            transition: all 0.3s;
+            font-size: 0.95em;
+            box-shadow: 0 4px 15px rgba(30, 60, 114, 0.3);
+        }
+
+        .link-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(30, 60, 114, 0.5);
+        }
+
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #4a90e2, #2a5298);
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 5px 20px rgba(30, 60, 114, 0.3);
+            font-weight: bold;
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(30, 60, 114, 0.5);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .highlight {
+            background: #81d4fa;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-weight: bold;
+            color: #0d47a1;
+        }
+
+        ul {
+            margin-left: 20px;
+        }
+
+        li {
+            margin: 10px 0;
+            font-size: 2em;
+            line-height: 1.6;
+            color: #000;
+        }
+
+        .stat-box {
+            background: linear-gradient(135deg, #4a90e2, #2a5298);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .stat-box p {
+            font-size: 1.6em;
+        }
+
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="presentation-container">
+        <div class="nav-menu">
+            <div class="nav-dots">
+                <span class="dot active" onclick="goToSlide(0)"></span>
+                <span class="dot" onclick="goToSlide(1)"></span>
+                <span class="dot" onclick="goToSlide(2)"></span>
+                <span class="dot" onclick="goToSlide(3)"></span>
+                <span class="dot" onclick="goToSlide(4)"></span>
+                <span class="dot" onclick="goToSlide(5)"></span>
+            </div>
+            <div class="slide-counter">
+                <span id="currentSlide">1</span> / 6
+            </div>
+        </div>
+
+        <div class="slide-container">
+            
+            <div class="slide active">
+                <h1> ECUACIÓN DE CONTINUIDAD</h1>
+                <p style="text-align: center; font-size: 1.4em; color: #2a5298; margin: 20px 0;">
+                    Conservación de la Masa en Fluidos
+                    Grupo: Santiago Arias, Marco Mendoza, Ian Osorio 
+                </p>
+                <div class="image-container">
+                    <img src="https://lawebdeingeniosos.com/wp-content/uploads/2024/04/volumencontrol-01-1536x318.png" alt="Tubo de Venturi" style="width: 100%; max-width: 700px; display: block; margin: 0 auto; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.2);">
+                </div>
+                <div class="formula">
+                    A₁v₁ = A₂v₂
+                </div>
+                <div class="box">
+                    <p style="text-align: center; font-size: 1.15em;">
+                       Cuando un fluido fluye por un conducto que se estrecha, su velocidad aumenta. Esto ocurre porque la masa se conserva, lo que significa que la cantidad de fluido que entra en el conducto por unidad de tiempo debe ser igual a la que sale. No puede "acumularse" ni "perderse" masa dentro del tubo (al menos en un flujo estacionario). Este principio fundamental es esencial para entender el comportamiento de líquidos y gases en movimiento.
+                    </p>
+                </div>
+                <div style="margin-top: 20px;">
+                    <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjcmpt125dt0lcZby2aAIwSHOKwaB3RITW07w5jSpmyMOjgy8Kep2CrJ1dS3ulnIABhNYG-CWWOWmRK6tRNMykdsPZ_SHHa5c9F9PWcM0UMBFApaZo7Q3IFbMJyKHyO3JZ949WAbQsfnrGj/s1600/Picture+2.png" alt="Tubo de Venturi" style="width: 100%; max-width: 600px; display: block; margin: 0 auto; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.2);">
+                </div>
+            </div>
+
+            
+            <div class="slide">
+                <h2> La Ecuación Explicada</h2>
+                <div class="formula">
+                    A₁ × v₁ = A₂ × v₂
+                </div>
+                <h3>¿Qué significa cada término?</h3>
+                <ul>
+                    <li><strong>A (área):</strong> Tamaño de la sección del tubo (m²)</li>
+                    <li><strong>v (velocidad):</strong> Rapidez del fluido (m/s)</li>
+                    <li><strong>A×v:</strong> Volumen que pasa por segundo</li>
+                    <li><strong>Principio:</strong> La masa no se crea ni se destruye</li>
+                </ul>
+                <div class="image-container" style="background: white; height: 250px;">
+                    <img src="https://cdn.fisimat.com.mx/wp-content/uploads/2017/10/ecuacion_de_continuidad.jpg" alt="Flujo de agua" style="width: 50%; height: 50%; object-fit: cover; border-radius: 12px;">
+                </div>
+                <div class="grid">
+                    <div class="stat-box">
+                        <span class="stat-number">½ A</span>
+                        <p>Área a la mitad<br>→ Velocidad ×2<br>Relación inversa proporcional</p>
+                    </div>
+                    <div class="stat-box">
+                        <span class="stat-number">¼ A</span>
+                        <p>Área a un cuarto<br>→ Velocidad ×4<br>Conservación de masa</p>
+                    </div>
+                </div>
+                <div style="text-align: center; margin-top: 20px;">
+                    <img src="https://cdn.fisimat.com.mx/wp-content/uploads/2019/03/ecuacion_de_continuidad_ejercicio_2_1.png" alt="Ecuación de continuidad" style="width: 100%; max-width: 500px; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.2);">
+                </div>
+            </div>
+
+            
+            <div class="slide">
+                <h2> Ejemplos Cotidianos</h2>
+                <div style="background: white; border-radius: 15px; padding: 10px; margin: 20px 0;">
+                    <img src="https://i.ytimg.com/vi/fmahk2vdokg/hq720.jpg?sqp=-oaymwE7CK4FEIIDSFryq4qpAy0IARUAAAAAGAElAADIQj0AgKJD8AEB-AH-CYAC0AWKAgwIABABGE4gZSgnMA8=&rs=AOn4CLBvbzbtlvl7ABMN7lUu2U2C5D1Mjw" alt="Ejemplos de fluidos" style="width: 100%; height: 600px; object-fit: cover; border-radius: 10px;">
+                </div>
+                <div class="grid">
+                    <div class="card">
+                        <div class="icon">🚿</div>
+                        <h3>Manguera</h3>
+                        <p>Tapar la salida aumenta la velocidad del agua. Al reducir el área, el fluido debe moverse más rápido para mantener el mismo caudal.</p>
+                    </div>
+                    <div class="card">
+                        <div class="icon">❤️</div>
+                        <h3>Circulación</h3>
+                        <p>La sangre acelera en arterias estrechas. Las arterias coronarias estrechas aumentan la velocidad del flujo sanguíneo.</p>
+                    </div>
+                    <div class="card">
+                        <div class="icon">🌊</div>
+                        <h3>Ríos</h3>
+                        <p>Flujo rápido en zonas angostas. Los cañones y estrechamientos generan rápidos y corrientes fuertes.</p>
+                    </div>
+                    <div class="card">
+                        <div class="icon">💨</div>
+                        <h3>Viento</h3>
+                        <p>Acelera entre edificios o montañas. El efecto túnel concentra y acelera las corrientes de aire.</p>
+                    </div>
+                </div>
+            </div>
+
+           
+            <div class="slide">
+                <h2>Aplicaciones Prácticas</h2>
+                <div style="background: white; border-radius: 15px; padding: 10px; margin: 20px 0;">
+                    <img src="https://www.utb.edu.co/wp-content/uploads/2024/06/13-consejos-antes-de-estudiar-Ingenieria-Civil-para-iniciar-tu-viaje-universitario-con-exito.png" alt="Ingeniería" style="width: 100%; height: 500px; object-fit: cover; border-radius: 10px;">
+                </div>
+                <h3>Ingeniería Civil</h3>
+                <div class="box">
+                    <p>• Diseño de tuberías y sistemas de agua<br>
+                    • Cálculo de drenajes y alcantarillado<br>
+                    • Optimización de redes de distribución<br>
+                    • Prevención de cavitación en bombas</p>
+                </div>
+                <h3>Medicina</h3>
+                <div class="box">
+                    <p>• Diagnóstico de estrechamientos arteriales<br>
+                    • Diseño de catéteres y equipos médicos<br>
+                    • Análisis del flujo sanguíneo<br>
+                    • Detección de aneurismas y bloqueos</p>
+                </div>
+                <h3>Aeronáutica</h3>
+                <div class="box">
+                    <p>• Motores de avión y turbinas<br>
+                    • Diseño aerodinámico de alas<br>
+                    • Sistemas de combustible<br>
+                    • Toberas de propulsión y escape</p>
+                </div>
+            </div>
+
+           
+            <div class="slide">
+                <h2> Ejemplo </h2>
+                <div class="box" style="background: #fff3cd; border-color: #063468;">
+                    <p><strong>Problema:</strong> Manguera con boquilla ajustable el cual tiene las siguientes dimensiones cuando esta abierta y cerrada .Calcule la velocidad final</p>
+                    <p><strong>Datos:</strong>
+                        ABIERTA
+                    • d₁= 2cm = 0,02m  r₁ = 0,01m<sup>2</sup>
+                    • v₁= 3m/s
+
+
+                        CERRADA  
+                    • d₂=0.8cm = 0,008m r₂ = 0,004m<sup>2</sup>
+                    • v₂ = 2m/s
+
+                </div>
+                
+                <div style="background: white; border-radius: 15px; padding: 10px; margin: 20px 0;">
+                    <img src="https://images.unsplash.com/photo-1416339442236-8ceb164046f8?w=800" alt="Manguera" style="width: 100%; height: 180px; object-fit: cover; border-radius: 10px;">
+                </div>
+
+                <h3> Paso 1: Calcular áreas</h3>
+                <p>A₁ = π(0.01)² = 0.000314 m²<br>
+                A₂ = π(0.004)² = 0.0000503 m²<br>
+                El área circular depende del radio al cuadrado</p>
+
+                <h3> Paso 2: Aplicar ecuación</h3>
+                <div class="formula" style="font-size: 1.5em;">
+                    v₂ = (A₁ × v₁) / A₂
+                </div>
+                <p style="text-align: center;">v₂ = (0.000314 × 3) / 0.0000503<br>
+                Despejamos v₂ de la ecuación de continuidad</p>
+
+                <div class="stat-box" style="margin: 20px auto; max-width: 300px;">
+                    <span class="stat-number">18.73 m/s</span>
+                    ≈ 19 m/s
+                </div>
+
+                <div class="box">
+                    <p><strong>Resultado:</strong> La velocidad aumenta 6.25 veces porque el área se redujo 6.25 veces (diámetro²). Esta relación inversa entre área y velocidad es la esencia de la ecuación de continuidad. A menor área transversal, mayor debe ser la velocidad para conservar el caudal másico constante.</p>
+                </div>
+            </div>
+
+            
+            <div class="slide">
+                <h2>Ejercicios de Ecuación de Continuidad</h2>
+                
+                <div class="box" style="margin-bottom: 25px;">
+                    <h3 style="margin-top: 0;">Ejercicio 1: Tubería de Agua</h3>
+                    <p><strong>Problema:</strong> Una tubería tiene un diámetro de 6 cm en la sección A donde el agua fluye a 2 m/s. Si la tubería se reduce a 3 cm de diámetro en la sección B, ¿cuál es la velocidad del agua en B?</p>
+                    <p><strong>Datos:</strong></br>
+                    • d₁ = 6 cm = 0.06 m   r₁= 0.03m<br>
+                    • v₁ = 2 m/s           r₂= 0,015m<br>
+                    • d₂ = 3 cm = 0.03 m<br>
+                    • v₂ ?<br>
+                    <p><strong>Solución:</strong><br>
+                    A₁ = π(0.03)² = 0.002827 m²<br>
+                    A₂ = π(0.015)² = 0.000707 m²<br>
+                    A₁v₁ = A₂v₂ → v₂ = (A₁ × v₁) / A₂<br>
+                    v₂ = (0.002827 × 2) / 0.000707 = <strong>8 m/s</strong></p>
+                </div>
+
+                <div class="box" style="margin-bottom: 25px;">
+                    <h3 style="margin-top: 0;">Ejercicio 2: Sistema de Riego</h3>
+                    <p><strong>Problema:</strong> Un sistema de riego tiene una manguera de 5 cm de diámetro con velocidad de 1.5 m/s. Se conecta una boquilla de 1 cm de diámetro. ¿A qué velocidad sale el agua?</p>
+                    <p><strong>Datos:</strong><br>
+                    • d₁ = 5cm = 0.05m             r₁ = 0.025m<br>
+                    • v₁ = = 1.5 m/s               r₂ = 0.005m<br>
+                    • d₂ = 1 cm = 0.01 m<br>
+                    <p><strong>Solución:</strong><br>
+                    A₁ = π(0.025)² = 0.001963 m²<br>
+                    A₂ = π(0.005)² = 0.000079 m²<br>
+                    A₁v₁ = A₂v₂ → v₂ = (A₁ × v₁) / A₂<br>
+                    v₂ = (0.001963 × 1.5) / 0.000079 = <strong>37.5 m/s</strong></p>
+                </div>
+
+                <div class="box" style="background: #fff3cd; border-color: #063468">
+                    <h3 style="margin-top: 0;">Ejercicio 3: Para Resolver </h3>
+                    <p><strong>Problema:</strong> Un tubo tiene un área de entrada de 0.02 m² donde el fluido se mueve a 4 m/s. En la sección estrecha, el área es 0.005 m². ¿Cuál es la velocidad en la sección estrecha?</p>
+                    <p><strong>Datos:</strong><br>
+                    • A₁ = 0.02 m²<br>
+                    • v₁ = 4 m/s<br>
+                    • A₂ = 0.005 m²<br>
+                    • v₂ = ?</p>
+                    <p style="text-align: center;"><strong> FORMULA:  A₁v₁ = A₂v₂</strong></p>
+                </div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button class="btn" id="prevBtn" onclick="changeSlide(-1)">← Anterior</button>
+            <button class="btn" id="nextBtn" onclick="changeSlide(1)">Siguiente →</button>
+        </div>
+    </div>
+
+    <script>
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const dots = document.querySelectorAll('.dot');
+        const totalSlides = slides.length;
+
+        function showSlide(n) {
+            if (n >= totalSlides) n = totalSlides - 1;
+            if (n < 0) n = 0;
+
+            slides.forEach((slide, index) => {
+                slide.classList.remove('active', 'prev');
+                if (index === n) {
+                    slide.classList.add('active');
+                } else if (index < n) {
+                    slide.classList.add('prev');
+                }
+            });
+
+            dots.forEach((dot, index) => {
+                dot.classList.toggle('active', index === n);
+            });
+
+            currentSlide = n;
+            document.getElementById('currentSlide').textContent = n + 1;
+
+            document.getElementById('prevBtn').disabled = n === 0;
+            document.getElementById('nextBtn').disabled = n === totalSlides - 1;
+        }
+
+        function changeSlide(direction) {
+            showSlide(currentSlide + direction);
+        }
+
+        function goToSlide(n) {
+            showSlide(n);
+        }
+
+        showSlide(0);
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') changeSlide(-1);
+            if (e.key === 'ArrowRight') changeSlide(1);
+        });
+    </script>
+</body>
+</html>
